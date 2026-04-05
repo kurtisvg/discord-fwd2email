@@ -29,10 +29,24 @@ func Execute() {
 		os.Exit(1)
 	}
 
+	if err := handler.RegisterCommand(); err != nil {
+		slog.Error("failed to register command", "error", err)
+		os.Exit(1)
+	}
+	slog.Info("registered command")
+
+	if opts.gateway {
+		runGateway(ctx, handler)
+	} else {
+		runWebhook(ctx, handler, opts.port)
+	}
+}
+
+func runWebhook(ctx context.Context, handler *discord.Handler, port string) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/interactions", handler.HandleInteraction)
 
-	srv := &http.Server{Addr: ":" + opts.port, Handler: mux}
+	srv := &http.Server{Addr: ":" + port, Handler: mux}
 
 	go func() {
 		<-ctx.Done()
@@ -40,9 +54,24 @@ func Execute() {
 		_ = srv.Shutdown(context.Background())
 	}()
 
-	slog.Info("listening", "port", opts.port)
+	slog.Info("listening (webhook mode)", "port", port)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		slog.Error("server error", "error", err)
 		os.Exit(1)
 	}
+}
+
+func runGateway(ctx context.Context, handler *discord.Handler) {
+	s := handler.Session()
+	s.AddHandler(handler.HandleGatewayInteraction)
+
+	if err := s.Open(); err != nil {
+		slog.Error("failed to open gateway connection", "error", err)
+		os.Exit(1)
+	}
+	defer func() { _ = s.Close() }()
+
+	slog.Info("connected (gateway mode)")
+	<-ctx.Done()
+	slog.Info("shutting down")
 }

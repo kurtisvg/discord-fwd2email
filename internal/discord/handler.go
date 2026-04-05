@@ -43,6 +43,38 @@ func NewHandler(publicKeyHex, token, appID, gmailUser string, mailer *email.Mail
 	}, nil
 }
 
+// RegisterCommand registers the "Forward to inbox" message command globally.
+func (h *Handler) RegisterCommand() error {
+	_, err := h.session.ApplicationCommandCreate(h.appID, "", &discordgo.ApplicationCommand{
+		Name: "Forward to inbox",
+		Type: discordgo.MessageApplicationCommand,
+	})
+	return err
+}
+
+// HandleGatewayInteraction handles interactions received via the gateway websocket.
+func (h *Handler) HandleGatewayInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	switch i.Type {
+	case discordgo.InteractionApplicationCommand:
+		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Flags: discordgo.MessageFlagsEphemeral,
+			},
+		})
+		if err != nil {
+			slog.Error("failed to defer interaction", "error", err)
+			return
+		}
+		go h.handleForward(i.Interaction)
+	}
+}
+
+// Session returns the underlying discordgo session for gateway mode.
+func (h *Handler) Session() *discordgo.Session {
+	return h.session
+}
+
 func (h *Handler) HandleInteraction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
