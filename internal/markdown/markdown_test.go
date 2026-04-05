@@ -13,6 +13,7 @@ func TestToHTML(t *testing.T) {
 		input string
 		want  template.HTML
 	}{
+		// Standard markdown.
 		{
 			name:  "bold",
 			input: "**hello**",
@@ -49,11 +50,6 @@ func TestToHTML(t *testing.T) {
 			want:  "<pre><code>fmt.Println()</code></pre>",
 		},
 		{
-			name:  "inline code preserves formatting chars",
-			input: "`**not bold**`",
-			want:  "<code>**not bold**</code>",
-		},
-		{
 			name:  "markdown link",
 			input: "[click here](https://example.com)",
 			want:  `<a href="https://example.com">click here</a>`,
@@ -69,40 +65,17 @@ func TestToHTML(t *testing.T) {
 			want:  "<blockquote>quoted text</blockquote>",
 		},
 		{
-			name:  "newlines",
-			input: "line one\nline two",
-			want:  "line one<br>line two",
-		},
-		{
-			name:  "html escape",
-			input: "<script>alert('xss')</script>",
-			want:  "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
-		},
-		{
-			name:  "combined formatting",
-			input: "**bold** and *italic* with `code`",
-			want:  "<strong>bold</strong> and <em>italic</em> with <code>code</code>",
-		},
-		{
-			name:  "plain text unchanged",
-			input: "just plain text",
-			want:  "just plain text",
-		},
-		{
-			name:  "empty string",
-			input: "",
-			want:  "",
-		},
-		{
-			name:  "code block preserves formatting",
-			input: "```\n**not bold** *not italic*\n```",
-			want:  "<pre><code>**not bold** *not italic*</code></pre>",
-		},
-		{
 			name:  "multi-line blockquote",
 			input: "> line one\n> line two",
 			want:  "<blockquote>line one</blockquote><br><blockquote>line two</blockquote>",
 		},
+		{
+			name:  "newlines",
+			input: "line one\nline two",
+			want:  "line one<br>line two",
+		},
+
+		// Discord-specific syntax.
 		{
 			name:  "user mention",
 			input: "hey <@123456>",
@@ -132,6 +105,48 @@ func TestToHTML(t *testing.T) {
 			name:  "spoiler",
 			input: "the answer is ||42||",
 			want:  "the answer is 42",
+		},
+		{
+			name:  "spoiler with formatting",
+			input: "||**bold spoiler**||",
+			want:  "<strong>bold spoiler</strong>",
+		},
+
+		// Edge cases.
+		{
+			name:  "empty string",
+			input: "",
+			want:  "",
+		},
+		{
+			name:  "plain text unchanged",
+			input: "just plain text",
+			want:  "just plain text",
+		},
+		{
+			name:  "html escape",
+			input: "<script>alert('xss')</script>",
+			want:  "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
+		},
+		{
+			name:  "combined formatting",
+			input: "**bold** and *italic* with `code`",
+			want:  "<strong>bold</strong> and <em>italic</em> with <code>code</code>",
+		},
+		{
+			name:  "inline code preserves formatting chars",
+			input: "`**not bold**`",
+			want:  "<code>**not bold**</code>",
+		},
+		{
+			name:  "code block preserves formatting",
+			input: "```\n**not bold** *not italic*\n```",
+			want:  "<pre><code>**not bold** *not italic*</code></pre>",
+		},
+		{
+			name:  "code block preserves mentions",
+			input: "```\n<@123> <#456>\n```",
+			want:  "<pre><code>&lt;@123&gt; &lt;#456&gt;</code></pre>",
 		},
 	}
 

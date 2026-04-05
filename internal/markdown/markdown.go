@@ -9,21 +9,26 @@ import (
 )
 
 var (
-	codeBlockRe     = regexp.MustCompile("(?s)```(?:\\w*\n)?(.*?)```")
-	inlineCodeRe    = regexp.MustCompile("`([^`]+)`")
+	// Extraction patterns — matched first to protect content from later passes.
+	codeBlockRe  = regexp.MustCompile("(?s)```(?:\\w*\n)?(.*?)```")
+	inlineCodeRe = regexp.MustCompile("`([^`]+)`")
+	linkRe       = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+
+	// Discord-specific syntax (matched after HTML escaping, so angle brackets are &lt;/&gt;).
+	userMentionRe    = regexp.MustCompile(`&lt;@!?(\d+)&gt;`)
+	channelMentionRe = regexp.MustCompile(`&lt;#(\d+)&gt;`)
+	customEmojiRe    = regexp.MustCompile(`&lt;a?:(\w+):\d+&gt;`)
+	spoilerRe        = regexp.MustCompile(`\|\|(.+?)\|\|`)
+
+	// Inline formatting.
 	boldItalicRe    = regexp.MustCompile(`\*\*\*(.+?)\*\*\*`)
 	boldRe          = regexp.MustCompile(`\*\*(.+?)\*\*`)
 	italicRe        = regexp.MustCompile(`\*(.+?)\*`)
 	strikethroughRe = regexp.MustCompile(`~~(.+?)~~`)
-	spoilerRe       = regexp.MustCompile(`\|\|(.+?)\|\|`)
-	linkRe          = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
-	bareURLRe       = regexp.MustCompile(`(https?://[^\s<]+)`)
-	blockquoteRe    = regexp.MustCompile(`(?m)^&gt; (.+)$`)
 
-	// Discord-specific syntax (matched after HTML escaping, so angle brackets are escaped).
-	userMentionRe    = regexp.MustCompile(`&lt;@!?(\d+)&gt;`)
-	channelMentionRe = regexp.MustCompile(`&lt;#(\d+)&gt;`)
-	customEmojiRe    = regexp.MustCompile(`&lt;a?:(\w+):\d+&gt;`)
+	// Links and structure.
+	bareURLRe    = regexp.MustCompile(`(https?://[^\s<]+)`)
+	blockquoteRe = regexp.MustCompile(`(?m)^&gt; (.+)$`)
 )
 
 // ToHTML converts Discord-flavored markdown to safe HTML.
@@ -31,7 +36,7 @@ func ToHTML(s string) template.HTML {
 	// Escape HTML first so user content can't inject tags.
 	s = html.EscapeString(s)
 
-	// Extract code blocks and inline code to protect from further processing.
+	// Extract code blocks, inline code, and links to protect from later passes.
 	var placeholders []string
 
 	s = codeBlockRe.ReplaceAllStringFunc(s, func(match string) string {
@@ -48,7 +53,6 @@ func ToHTML(s string) template.HTML {
 		return p
 	})
 
-	// Extract markdown links to protect URLs from bare URL matching.
 	s = linkRe.ReplaceAllStringFunc(s, func(match string) string {
 		parts := linkRe.FindStringSubmatch(match)
 		p := placeholder(len(placeholders))
