@@ -2,6 +2,7 @@ package markdown
 
 import (
 	"html/template"
+	"strings"
 	"testing"
 )
 
@@ -147,6 +148,11 @@ func TestToHTML(t *testing.T) {
 			name:  "code block preserves mentions",
 			input: "```\n<@123> <#456>\n```",
 			want:  "<pre><code>&lt;@123&gt; &lt;#456&gt;</code></pre>",
+		},
+		{
+			name:  "long code block truncated",
+			input: "```\n" + strings.Repeat("x", 3500) + "\n```",
+			want:  "<pre><code>" + template.HTML(strings.Repeat("x", 3000)) + "\n… (truncated)</code></pre>",
 		},
 	}
 

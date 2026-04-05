@@ -81,6 +81,17 @@ func TestMessageData(t *testing.T) {
 			},
 			wantAuthor: "charlie",
 		},
+		{
+			name: "attachment only no text",
+			msg: &discordgo.Message{
+				Author:  &discordgo.User{Username: "dave", Avatar: "jkl"},
+				Content: "",
+				Attachments: []*discordgo.MessageAttachment{
+					{Filename: "screenshot.png", URL: "https://cdn.example.com/screenshot.png", ContentType: "image/png"},
+				},
+			},
+			wantAuthor: "dave",
+		},
 	}
 
 	for _, tt := range tests {
@@ -95,6 +106,9 @@ func TestMessageData(t *testing.T) {
 			}
 			if tt.msg.Content != "" && md.Content == "" {
 				t.Error("expected non-empty content")
+			}
+			if tt.msg.Content == "" && md.Content != "" {
+				t.Errorf("expected empty content for no-text message, got %q", md.Content)
 			}
 			if tt.msg.Content == "**bold**" && !strings.Contains(string(md.Content), "<strong>") {
 				t.Error("expected markdown to be converted to HTML")

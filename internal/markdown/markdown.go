@@ -31,6 +31,8 @@ var (
 	blockquoteRe = regexp.MustCompile(`(?m)^&gt; (.+)$`)
 )
 
+const maxCodeBlockLen = 3000
+
 // ToHTML converts Discord-flavored markdown to safe HTML.
 func ToHTML(s string) template.HTML {
 	// Escape HTML first so user content can't inject tags.
@@ -40,9 +42,12 @@ func ToHTML(s string) template.HTML {
 	var placeholders []string
 
 	s = codeBlockRe.ReplaceAllStringFunc(s, func(match string) string {
-		inner := codeBlockRe.FindStringSubmatch(match)[1]
+		inner := strings.TrimSpace(codeBlockRe.FindStringSubmatch(match)[1])
+		if len(inner) > maxCodeBlockLen {
+			inner = inner[:maxCodeBlockLen] + "\n… (truncated)"
+		}
 		p := placeholder(len(placeholders))
-		placeholders = append(placeholders, "<pre><code>"+strings.TrimSpace(inner)+"</code></pre>")
+		placeholders = append(placeholders, "<pre><code>"+inner+"</code></pre>")
 		return p
 	})
 
