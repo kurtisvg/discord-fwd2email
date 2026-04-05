@@ -35,10 +35,27 @@ func parseFlags(args []string) options {
 	return opts
 }
 
+func (o options) require(flags ...string) {
+	vals := map[string]string{
+		"discord-token":      o.discordToken,
+		"discord-app-id":     o.discordAppID,
+		"discord-public-key": o.discordPublicKey,
+		"gmail-user":         o.gmailUser,
+		"gmail-app-password": o.gmailAppPassword,
+	}
+	for _, name := range flags {
+		if vals[name] == "" {
+			slog.Error("required config is not set", "flag", name)
+			os.Exit(1)
+		}
+	}
+}
+
 func Execute() {
 	opts := parseFlags(os.Args[1:])
 
 	if opts.register {
+		opts.require("discord-token", "discord-app-id")
 		runRegister(opts)
 		return
 	}
@@ -52,11 +69,4 @@ func envOrDefault(key, fallback string) string {
 		return v
 	}
 	return fallback
-}
-
-func requireFlag(name, val string) {
-	if val == "" {
-		slog.Error("required config is not set", "flag", name)
-		os.Exit(1)
-	}
 }

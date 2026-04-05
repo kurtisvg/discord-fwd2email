@@ -8,9 +8,6 @@ import (
 )
 
 func runRegister(opts options) {
-	requireFlag("discord-token", opts.discordToken)
-	requireFlag("discord-app-id", opts.discordAppID)
-
 	s, err := discordgo.New("Bot " + opts.discordToken)
 	if err != nil {
 		slog.Error("failed to create discord session", "error", err)
