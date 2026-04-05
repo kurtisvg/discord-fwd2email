@@ -62,6 +62,17 @@ func TestMessageData(t *testing.T) {
 			},
 			wantAuthor: "bob456",
 		},
+		{
+			name: "with attachments",
+			msg: &discordgo.Message{
+				Author: &discordgo.User{Username: "charlie", Avatar: "ghi"},
+				Attachments: []*discordgo.MessageAttachment{
+					{Filename: "photo.png", URL: "https://cdn.example.com/photo.png", ContentType: "image/png"},
+					{Filename: "doc.pdf", URL: "https://cdn.example.com/doc.pdf", ContentType: "application/pdf"},
+				},
+			},
+			wantAuthor: "charlie",
+		},
 	}
 
 	for _, tt := range tests {
@@ -76,6 +87,14 @@ func TestMessageData(t *testing.T) {
 			}
 			if md.Content != tt.msg.Content {
 				t.Errorf("expected content %q, got %q", tt.msg.Content, md.Content)
+			}
+			if len(md.Attachments) != len(tt.msg.Attachments) {
+				t.Fatalf("expected %d attachments, got %d", len(tt.msg.Attachments), len(md.Attachments))
+			}
+			for i, a := range md.Attachments {
+				if a.Filename != tt.msg.Attachments[i].Filename {
+					t.Errorf("attachment %d: expected filename %q, got %q", i, tt.msg.Attachments[i].Filename, a.Filename)
+				}
 			}
 		})
 	}

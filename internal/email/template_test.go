@@ -78,6 +78,54 @@ func TestEmailTemplate(t *testing.T) {
 			},
 			want: []string{"Solo message", "Alice"},
 		},
+		{
+			name: "image attachment renders inline",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Alice",
+					Content:    "Check this out",
+					Attachments: []Attachment{
+						{Filename: "photo.png", URL: "https://cdn.example.com/photo.png", IsImage: true},
+					},
+				},
+			},
+			want: []string{"Check this out", `<img src="https://cdn.example.com/photo.png"`},
+		},
+		{
+			name: "file attachment renders as link",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Bob",
+					Content:    "Here's the doc",
+					Attachments: []Attachment{
+						{Filename: "report.pdf", URL: "https://cdn.example.com/report.pdf", IsImage: false},
+					},
+				},
+			},
+			want: []string{"report.pdf", `href="https://cdn.example.com/report.pdf"`},
+		},
+		{
+			name: "attachment only message (no text)",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Charlie",
+					Attachments: []Attachment{
+						{Filename: "image.jpg", URL: "https://cdn.example.com/image.jpg", IsImage: true},
+					},
+				},
+			},
+			want:       []string{"Charlie", `<img src="https://cdn.example.com/image.jpg"`},
+			wantAbsent: []string{"<p style=\"margin:0;font-size:14px"},
+		},
 	}
 
 	for _, tt := range tests {

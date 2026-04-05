@@ -2,10 +2,17 @@ package email
 
 import "html/template"
 
+type Attachment struct {
+	Filename string
+	URL      string
+	IsImage  bool
+}
+
 type MessageData struct {
-	AuthorName string
-	AvatarURL  string
-	Content    string
+	AuthorName  string
+	AvatarURL   string
+	Content     string
+	Attachments []Attachment
 }
 
 type ForwardData struct {
@@ -47,7 +54,12 @@ const emailTemplateHTML = `<!DOCTYPE html>
               </td>
               <td style="padding:12px 8px 12px 8px;">
                 <p style="margin:0 0 2px 0;font-weight:bold;font-size:14px;color:#111;">{{.AuthorName}}</p>
-                <p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.Content}}</p>
+                {{if .Content}}<p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.Content}}</p>{{end}}
+                {{range .Attachments}}
+                  {{if .IsImage}}<img src="{{.URL}}" style="max-width:100%;border-radius:4px;margin-top:8px;display:block;" alt="{{.Filename}}">
+                  {{else}}<p style="margin:4px 0 0 0;font-size:13px;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">📎 {{.Filename}}</a></p>
+                  {{end}}
+                {{end}}
               </td>
             </tr>
           </table>
@@ -63,7 +75,12 @@ const emailTemplateHTML = `<!DOCTYPE html>
               </td>
               <td style="padding:12px 8px 12px 8px;border-left:3px solid #5865F2;">
                 <p style="margin:0 0 2px 0;font-weight:bold;font-size:14px;color:#111;">{{.TargetMessage.AuthorName}}</p>
-                <p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.TargetMessage.Content}}</p>
+                {{if .TargetMessage.Content}}<p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.TargetMessage.Content}}</p>{{end}}
+                {{range .TargetMessage.Attachments}}
+                  {{if .IsImage}}<img src="{{.URL}}" style="max-width:100%;border-radius:4px;margin-top:8px;display:block;" alt="{{.Filename}}">
+                  {{else}}<p style="margin:4px 0 0 0;font-size:13px;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">📎 {{.Filename}}</a></p>
+                  {{end}}
+                {{end}}
               </td>
             </tr>
           </table>

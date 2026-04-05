@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/discord-forward-to-email/internal/email"
@@ -174,10 +175,21 @@ func messageData(msg *discordgo.Message) email.MessageData {
 	if authorName == "" {
 		authorName = msg.Author.Username
 	}
+
+	var attachments []email.Attachment
+	for _, a := range msg.Attachments {
+		attachments = append(attachments, email.Attachment{
+			Filename: a.Filename,
+			URL:      a.URL,
+			IsImage:  strings.HasPrefix(a.ContentType, "image/"),
+		})
+	}
+
 	return email.MessageData{
-		AuthorName: authorName,
-		AvatarURL:  avatarURL(msg.Author),
-		Content:    msg.Content,
+		AuthorName:  authorName,
+		AvatarURL:   avatarURL(msg.Author),
+		Content:     msg.Content,
+		Attachments: attachments,
 	}
 }
 
