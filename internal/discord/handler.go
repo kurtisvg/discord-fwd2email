@@ -106,7 +106,7 @@ func (h *Handler) handleForward(interaction *discordgo.Interaction) {
 		guildID, interaction.ChannelID, targetMsg.ID)
 
 	// Fetch context messages (up to 5 before the target).
-	contextMessages, contextErr := h.fetchContext(interaction.ChannelID, targetMsg.ID)
+	contextMessages, contextErr := fetchContext(h.session, interaction.ChannelID, targetMsg.ID)
 	if contextErr != nil {
 		slog.Info("context fetch failed, forwarding target only", "error", contextErr)
 	}
@@ -161,8 +161,8 @@ func (h *Handler) handleForward(interaction *discordgo.Interaction) {
 	}
 }
 
-func (h *Handler) fetchContext(channelID, beforeMessageID string) ([]email.MessageData, error) {
-	messages, err := h.session.ChannelMessages(channelID, 5, beforeMessageID, "", "")
+func fetchContext(s *discordgo.Session, channelID, beforeMessageID string) ([]email.MessageData, error) {
+	messages, err := s.ChannelMessages(channelID, 5, beforeMessageID, "", "")
 	if err != nil {
 		return nil, err
 	}
