@@ -140,11 +140,31 @@ func TestIsThread(t *testing.T) {
 		chanType discordgo.ChannelType
 		want     bool
 	}{
-		{"public thread", discordgo.ChannelTypeGuildPublicThread, true},
-		{"private thread", discordgo.ChannelTypeGuildPrivateThread, true},
-		{"text channel", discordgo.ChannelTypeGuildText, false},
-		{"voice channel", discordgo.ChannelTypeGuildVoice, false},
-		{"DM", discordgo.ChannelTypeDM, false},
+		{
+			name:     "public thread",
+			chanType: discordgo.ChannelTypeGuildPublicThread,
+			want:     true,
+		},
+		{
+			name:     "private thread",
+			chanType: discordgo.ChannelTypeGuildPrivateThread,
+			want:     true,
+		},
+		{
+			name:     "text channel",
+			chanType: discordgo.ChannelTypeGuildText,
+			want:     false,
+		},
+		{
+			name:     "voice channel",
+			chanType: discordgo.ChannelTypeGuildVoice,
+			want:     false,
+		},
+		{
+			name:     "DM",
+			chanType: discordgo.ChannelTypeDM,
+			want:     false,
+		},
 	}
 
 	for _, tt := range tests {
