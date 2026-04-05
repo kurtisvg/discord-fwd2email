@@ -4,6 +4,7 @@ import "html/template"
 
 type MessageData struct {
 	AuthorName string
+	AvatarURL  string
 	Content    string
 }
 
@@ -41,7 +42,10 @@ const emailTemplateHTML = `<!DOCTYPE html>
         <tr><td style="padding:0 24px;">
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
-              <td style="padding:12px 0 12px 12px;">
+              <td width="40" valign="top" style="padding:12px 0 12px 12px;">
+                <img src="{{.AvatarURL}}" width="32" height="32" style="border-radius:50%;display:block;" alt="{{.AuthorName}}">
+              </td>
+              <td style="padding:12px 8px 12px 8px;">
                 <p style="margin:0 0 2px 0;font-weight:bold;font-size:14px;color:#111;">{{.AuthorName}}</p>
                 <p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.Content}}</p>
               </td>
@@ -54,7 +58,10 @@ const emailTemplateHTML = `<!DOCTYPE html>
         <tr><td style="padding:0 24px;">
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
-              <td style="padding:12px 0 12px 12px;border-left:3px solid #5865F2;">
+              <td width="40" valign="top" style="padding:12px 0 12px 12px;border-left:3px solid #5865F2;">
+                <img src="{{.TargetMessage.AvatarURL}}" width="32" height="32" style="border-radius:50%;display:block;" alt="{{.TargetMessage.AuthorName}}">
+              </td>
+              <td style="padding:12px 8px 12px 8px;border-left:3px solid #5865F2;">
                 <p style="margin:0 0 2px 0;font-weight:bold;font-size:14px;color:#111;">{{.TargetMessage.AuthorName}}</p>
                 <p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.TargetMessage.Content}}</p>
               </td>

@@ -125,27 +125,21 @@ func (h *Handler) handleForward(interaction *discordgo.Interaction) {
 		}
 	}
 
-	authorName := targetMsg.Author.GlobalName
-	if authorName == "" {
-		authorName = targetMsg.Author.Username
-	}
+	target := messageData(targetMsg)
 
 	emailData := email.ForwardData{
 		ServerName:      serverName,
 		ChannelName:     channelName,
 		MessageLink:     messageLink,
 		ContextMessages: contextMessages,
-		TargetMessage: email.MessageData{
-			AuthorName: authorName,
-			Content:    targetMsg.Content,
-		},
+		TargetMessage:   target,
 	}
 
 	subject := "[Discord] Forwarded chat"
 	if channelName != "" {
 		subject = fmt.Sprintf("[Discord] Forwarded chat in #%s", channelName)
-	} else if serverName == "" && authorName != "" {
-		subject = fmt.Sprintf("[Discord] Forwarded DM with %s", authorName)
+	} else if serverName == "" && target.AuthorName != "" {
+		subject = fmt.Sprintf("[Discord] Forwarded DM with %s", target.AuthorName)
 	}
 
 	if err := h.mailer.Send(h.gmailUser, subject, emailData); err != nil {
@@ -170,16 +164,30 @@ func fetchContext(s *discordgo.Session, channelID, beforeMessageID string) ([]em
 	// ChannelMessages returns newest-first; reverse to oldest-first.
 	context := make([]email.MessageData, len(messages))
 	for i, msg := range messages {
-		authorName := msg.Author.GlobalName
-		if authorName == "" {
-			authorName = msg.Author.Username
-		}
-		context[len(messages)-1-i] = email.MessageData{
-			AuthorName: authorName,
-			Content:    msg.Content,
-		}
+		context[len(messages)-1-i] = messageData(msg)
 	}
 	return context, nil
+}
+
+func messageData(msg *discordgo.Message) email.MessageData {
+	authorName := msg.Author.GlobalName
+	if authorName == "" {
+		authorName = msg.Author.Username
+	}
+	return email.MessageData{
+		AuthorName: authorName,
+		AvatarURL:  avatarURL(msg.Author),
+		Content:    msg.Content,
+	}
+}
+
+func avatarURL(u *discordgo.User) string {
+	if u.Avatar != "" {
+		return fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png?size=64", u.ID, u.Avatar)
+	}
+	// Default avatar index: (user_id >> 22) % 6
+	// For simplicity, use the discriminator-based fallback which discordgo provides.
+	return u.AvatarURL("64")
 }
 
 func (h *Handler) editReply(interaction *discordgo.Interaction, content string) {
