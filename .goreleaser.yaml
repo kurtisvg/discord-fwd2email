@@ -23,36 +23,6 @@ archives:
 checksum:
   name_template: checksums.txt
 
-dockers:
-  - image_templates:
-      - "ghcr.io/kurtisvg/fwd2email:{{ .Version }}-amd64"
-    use: buildx
-    dockerfile: Dockerfile.goreleaser
-    extra_files:
-      - LICENSE
-    build_flag_templates:
-      - "--platform=linux/amd64"
-    goarch: amd64
-  - image_templates:
-      - "ghcr.io/kurtisvg/fwd2email:{{ .Version }}-arm64"
-    use: buildx
-    dockerfile: Dockerfile.goreleaser
-    extra_files:
-      - LICENSE
-    build_flag_templates:
-      - "--platform=linux/arm64"
-    goarch: arm64
-
-docker_manifests:
-  - name_template: "ghcr.io/kurtisvg/fwd2email:{{ .Version }}"
-    image_templates:
-      - "ghcr.io/kurtisvg/fwd2email:{{ .Version }}-amd64"
-      - "ghcr.io/kurtisvg/fwd2email:{{ .Version }}-arm64"
-  - name_template: "ghcr.io/kurtisvg/fwd2email:latest"
-    image_templates:
-      - "ghcr.io/kurtisvg/fwd2email:{{ .Version }}-amd64"
-      - "ghcr.io/kurtisvg/fwd2email:{{ .Version }}-arm64"
-
 release:
   use_existing_draft: true
   mode: keep-existing

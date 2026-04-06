@@ -1,4 +1,0 @@
-FROM gcr.io/distroless/static-debian12:nonroot
-COPY fwd2email /bin/fwd2email
-COPY LICENSE /LICENSE
-ENTRYPOINT ["/bin/fwd2email"]
