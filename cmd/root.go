@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -46,7 +47,7 @@ func runWebhook(ctx context.Context, handler *discord.Handler, port string) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/interactions", handler.HandleInteraction)
 
-	srv := &http.Server{Addr: ":" + port, Handler: mux}
+	srv := &http.Server{Addr: net.JoinHostPort("", port), Handler: mux}
 
 	go func() {
 		<-ctx.Done()
