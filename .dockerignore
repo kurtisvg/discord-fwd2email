@@ -1,6 +1,0 @@
-.git
-.github
-.golangci.yaml
-*.md
-*.png
-preview.html
