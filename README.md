@@ -1,74 +1,84 @@
 # Discord Forward-to-Email
 
-Right-click any Discord message and forward it to your email inbox. Get a formatted email with surrounding context, author avatars, and a link back to the conversation.
+Google Chat has "Forward to inbox." Discord doesn't. Now it does.
+
+Right-click any message, hit **Forward to inbox**, and a formatted email lands in your Gmail — with context, avatars, and a link back.
 
 ![Example email](EXAMPLE.png)
 
-## How it works
-
-1. Right-click a message in any server, DM, or thread
-2. Select **Apps > Forward to inbox**
-3. A formatted HTML email arrives in your Gmail with up to 5 messages of context and an "Open in Discord" link
-
-## Setup
-
-### 1. Create a Discord application
-
-1. Go to [discord.com/developers/applications](https://discord.com/developers/applications) and create a new application
-2. Copy the **Application ID** and **Public Key** from General Information
-3. Go to **Bot**, create a bot user, and copy the **Token**
-4. Go to **Installation**, enable **User Install** (and optionally **Guild Install** for context message access in servers)
-
-### 2. Generate a Gmail app password
-
-1. Go to [myaccount.google.com](https://myaccount.google.com) > Security > App Passwords
-2. Generate a new app password for "Mail"
-
-### 3. Run the bot
-
-All config can be set via flags or environment variables:
-
-| Flag | Env var | Required | Description |
-|------|---------|----------|-------------|
-| `-discord-token` | `DISCORD_TOKEN` | Yes | Bot token |
-| `-discord-app-id` | `DISCORD_APP_ID` | Yes | Application ID |
-| `-discord-public-key` | `DISCORD_PUBLIC_KEY` | Webhook mode | Public key for signature verification |
-| `-gmail-user` | `GMAIL_USER` | Yes | Gmail address |
-| `-gmail-app-password` | `GMAIL_APP_PASSWORD` | Yes | Gmail app password |
-| `-host` | `HOST` | No | HTTP server host (default: all interfaces) |
-| `-port` | `PORT` | No | HTTP server port (default: 8080) |
-| `-gateway` | | No | Use gateway (websocket) mode |
-
-**Gateway mode** (local development, no public URL needed):
+## Quickstart
 
 ```sh
-export DISCORD_TOKEN='...'
-export DISCORD_APP_ID='...'
+# Clone and run in gateway mode (no public URL needed)
+git clone https://github.com/kurtisvg/discord-forward-to-email.git
+cd discord-forward-to-email
+
+export DISCORD_TOKEN='your-bot-token'
+export DISCORD_APP_ID='your-app-id'
 export GMAIL_USER='you@gmail.com'
-export GMAIL_APP_PASSWORD='...'
+export GMAIL_APP_PASSWORD='your-app-password'
+
 go run . -gateway
 ```
 
-**Webhook mode** (production, requires public HTTPS URL):
+The bot registers its command on startup. Right-click any message > **Apps** > **Forward to inbox**.
 
-```sh
-export DISCORD_TOKEN='...'
-export DISCORD_APP_ID='...'
-export DISCORD_PUBLIC_KEY='...'
-export GMAIL_USER='you@gmail.com'
-export GMAIL_APP_PASSWORD='...'
-go run .
+## Discord setup
+
+1. Create an app at [discord.com/developers/applications](https://discord.com/developers/applications)
+2. **General Information** — copy the Application ID
+3. **Bot** — create a bot, copy the token
+4. **Installation** — enable User Install
+
+That's it for basic usage. The bot will work in any server or DM, forwarding the target message.
+
+**Want context messages?** The 5 messages before the target require the bot to be a server member with Read Message History. Enable Guild Install, then install the bot to your server with the `bot` + `applications.commands` scopes. Servers where the bot isn't a member gracefully fall back to target-only.
+
+## Gmail setup
+
+Generate an app password at [myaccount.google.com](https://myaccount.google.com) > Security > App Passwords. You need this because the bot sends email via SMTP, not the Gmail API.
+
+## Configuration
+
+Everything is configurable via flags or environment variables. Flags take precedence.
+
+```
+-discord-token     / DISCORD_TOKEN        Bot token (required)
+-discord-app-id    / DISCORD_APP_ID       Application ID (required)
+-discord-public-key / DISCORD_PUBLIC_KEY  Public key (webhook mode only)
+-gmail-user        / GMAIL_USER           Gmail address (required)
+-gmail-app-password / GMAIL_APP_PASSWORD  App password (required)
+-host              / HOST                 Server host (default: all interfaces)
+-port              / PORT                 Server port (default: 8080)
+-gateway                                  Use websocket mode instead of webhooks
 ```
 
-Then set the **Interactions Endpoint URL** in the Discord Developer Portal to `https://your-domain/interactions`.
+## Running modes
 
-### 4. Install the app
+**Gateway mode** — connects to Discord via websocket. No public URL, no signature verification. Great for local dev.
 
-Generate an OAuth2 URL in the Developer Portal with the `applications.commands` scope (add `bot` scope with Read Message History permission for server installs) and open it to install the app to your account.
+```sh
+go run . -gateway
+```
 
-## Context messages
+**Webhook mode** — runs an HTTP server that receives interaction POSTs from Discord. Requires a public HTTPS URL and the public key for signature verification. This is what you'd use on Cloud Run or similar.
 
-The bot fetches up to 5 messages before the target for context. This requires the bot to be a **server member** with Read Message History permission. In servers where the bot isn't a member, it forwards just the target message (which is always available from the interaction payload).
+```sh
+go run .
+# Then set your Interactions Endpoint URL in the Discord Developer Portal
+# to https://your-domain/interactions
+```
+
+## What you get
+
+Each forwarded email includes:
+
+- Up to 5 messages of context (oldest first), with the target highlighted
+- Author names and avatars
+- Discord markdown rendered as HTML (bold, italic, code, links, etc.)
+- Attachments (images inline, files as links)
+- An "Open in Discord" button linking back to the exact message
+- Thread and channel names in the header
 
 ## License
 
