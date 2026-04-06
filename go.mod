@@ -1,4 +1,4 @@
-module github.com/discord-forward-to-email
+module github.com/kurtisvg/discord-fwd2email
 
 go 1.24.2
 

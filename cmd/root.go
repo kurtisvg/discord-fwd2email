@@ -10,9 +10,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/discord-forward-to-email/internal/discord"
-	"github.com/discord-forward-to-email/internal/email"
-	"github.com/discord-forward-to-email/internal/version"
+	"github.com/kurtisvg/discord-fwd2email/internal/discord"
+	"github.com/kurtisvg/discord-fwd2email/internal/email"
+	"github.com/kurtisvg/discord-fwd2email/internal/version"
 )
 
 func Execute() {

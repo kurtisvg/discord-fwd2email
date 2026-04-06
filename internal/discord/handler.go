@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/discord-forward-to-email/internal/email"
-	"github.com/discord-forward-to-email/internal/markdown"
+	"github.com/kurtisvg/discord-fwd2email/internal/email"
+	"github.com/kurtisvg/discord-fwd2email/internal/markdown"
 )
 
 type Handler struct {

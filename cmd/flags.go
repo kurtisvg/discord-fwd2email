@@ -22,7 +22,7 @@ type options struct {
 
 func parseFlags(args []string) options {
 	var opts options
-	fs := flag.NewFlagSet("discord-forward-to-email", flag.ExitOnError)
+	fs := flag.NewFlagSet("fwd2email", flag.ExitOnError)
 	fs.BoolVar(&opts.version, "version", false, "Print version and exit")
 	fs.StringVar(&opts.host, "host", envOrDefault("HOST", ""), "HTTP server host")
 	fs.StringVar(&opts.port, "port", envOrDefault("PORT", "8080"), "HTTP server port")

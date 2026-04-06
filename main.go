@@ -1,6 +1,6 @@
 package main
 
-import "github.com/discord-forward-to-email/cmd"
+import "github.com/kurtisvg/discord-fwd2email/cmd"
 
 func main() {
 	cmd.Execute()
