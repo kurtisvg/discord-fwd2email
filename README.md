@@ -78,6 +78,8 @@ The bot registers its command on startup.
 3. Copy the generated URL and open it in your browser
 4. Choose **Install to my account** and authorize
 
+> **Note:** By default, Discord applications are private — only you can install the bot. If you want to keep it that way, make sure **Public Bot** is unchecked under **Bot** in the Developer Portal.
+
 You're all set. Right-click any message > **Apps** > **Forward to inbox**.
 
 ## ⚙️ Configuration
