@@ -4,7 +4,8 @@
       "release-type": "simple",
       "bump-minor-pre-major": true,
       "force-tag-creation": true,
-      "version-file": "internal/version/version.txt"
+      "version-file": "internal/version/version.txt",
+      "extra-files": ["README.md"]
     }
   }
 }
