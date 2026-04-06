@@ -16,8 +16,7 @@ Right-click any message, select **Apps** > **Forward to inbox**, and a formatted
   - [3. Install and run the server](#3-install-and-run-the-server)
   - [4. Install the app to your Discord account](#4-install-the-app-to-your-discord-account)
 - [Configuration](#%EF%B8%8F-configuration)
-- [Running modes](#-running-modes)
-- [What you get](#-what-you-get)
+- [Gateway vs webhook mode](#-gateway-vs-webhook-mode)
 - [Adding the bot to a server](#-adding-the-bot-to-a-server)
 
 ## 🚀 Getting started
@@ -96,7 +95,7 @@ Everything is configurable via flags or environment variables. Flags take preced
 -gateway                                  Use websocket mode instead of webhooks
 ```
 
-## 🔌 Running modes
+## 🔌 Gateway vs webhook mode
 
 **Gateway mode** — connects to Discord via websocket. No public URL, no signature verification. Great for local dev and personal use.
 
@@ -111,17 +110,6 @@ Everything is configurable via flags or environment variables. Flags take preced
 # Then set your Interactions Endpoint URL in the Discord Developer Portal
 # to https://your-domain/interactions
 ```
-
-## 📬 What you get
-
-Each forwarded email includes:
-
-- Up to 5 messages of context (oldest first), with the target highlighted
-- Author names and avatars
-- Discord markdown rendered as HTML (bold, italic, code, links, etc.)
-- Attachments (images inline, files as links)
-- An "Open in Discord" button linking back to the exact message
-- Thread and channel names in the header
 
 ## 🏠 Adding the bot to a server
 
