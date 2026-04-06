@@ -2,7 +2,7 @@
 
 Google Chat has "Forward to inbox." Discord doesn't. Now it does.
 
-Right-click any message, hit **Forward to inbox**, and a formatted email lands in your Gmail — with context, avatars, and a link back.
+Right-click any message, select **Apps** > **Forward to inbox**, and a formatted email lands in your Gmail — with context, avatars, and a link back.
 
 ![Example email](EXAMPLE.png)
 
@@ -21,7 +21,7 @@ export GMAIL_APP_PASSWORD='your-app-password'
 go run . -gateway
 ```
 
-The bot registers its command on startup. Right-click any message > **Apps** > **Forward to inbox**.
+The bot registers its command on startup. Right-click any message > **Apps** > **Forward to inbox**
 
 ## Discord setup
 
