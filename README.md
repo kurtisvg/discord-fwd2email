@@ -10,11 +10,16 @@ Right-click any message, select **Apps** > **Forward to inbox**, and a formatted
 
 ### Install
 
+<details>
+<summary>Build from source</summary>
+
 ```sh
 git clone https://github.com/kurtisvg/discord-forward-to-email.git
 cd discord-forward-to-email
 go build -o fwd2email .
 ```
+
+</details>
 
 <details>
 <summary>Or install directly with <code>go install</code></summary>
