@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
@@ -11,10 +12,17 @@ import (
 
 	"github.com/discord-forward-to-email/internal/discord"
 	"github.com/discord-forward-to-email/internal/email"
+	"github.com/discord-forward-to-email/internal/version"
 )
 
 func Execute() {
 	opts := parseFlags(os.Args[1:])
+
+	if opts.version {
+		fmt.Println(version.Version)
+		return
+	}
+
 	if err := opts.validate(); err != nil {
 		slog.Error("invalid config", "error", err)
 		os.Exit(1)
