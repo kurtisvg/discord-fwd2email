@@ -1,4 +1,4 @@
-# ✉️ Discord Forward-to-Email
+# ✉️ discord-fwd2email
 
 Google Chat has "Forward to inbox." Discord doesn't. Now it does.
 
