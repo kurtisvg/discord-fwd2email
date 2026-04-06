@@ -78,7 +78,7 @@ The bot registers its command on startup.
 3. Copy the generated URL and open it in your browser
 4. Choose **Install to my account** and authorize
 
-> **Note:** Discord bots are public by default. To make it private (only you can install it), go to **Bot** in the Developer Portal and uncheck **Public Bot**.
+> **⚠️ Important:** Discord bots are public by default, meaning anyone can install and use yours — including sending emails through your Gmail. Go to **Bot** in the Developer Portal and uncheck **Public Bot** to restrict it to your account only.
 
 You're all set. Right-click any message > **Apps** > **Forward to inbox**.
 
