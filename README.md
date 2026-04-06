@@ -39,24 +39,42 @@ Right-click any message, select **Apps** > **Forward to inbox**, and a formatted
 
 ### 3. Install and run the server
 
-<details open>
-<summary>Build from source</summary>
+#### Download a binary
 
 ```sh
-git clone https://github.com/kurtisvg/discord-fwd2email.git && cd discord-fwd2email
-go build -o fwd2email .
+VERSION="0.0.1"
+OS="linux"       # or: darwin
+ARCH="amd64"     # or: arm64
+
+curl -L "https://github.com/kurtisvg/discord-fwd2email/releases/download/v${VERSION}/discord-fwd2email_${VERSION}_${OS}_${ARCH}" -o fwd2email
+chmod +x fwd2email
 ```
 
-</details>
+Or download from the [releases page](https://github.com/kurtisvg/discord-fwd2email/releases/latest).
 
-<details>
-<summary>Or install directly with <code>go install</code></summary>
+#### Docker
+
+```sh
+docker run --rm \
+  -e DISCORD_TOKEN='your-bot-token' \
+  -e DISCORD_APP_ID='your-app-id' \
+  -e GMAIL_USER='you@gmail.com' \
+  -e GMAIL_APP_PASSWORD='your-app-password' \
+  ghcr.io/kurtisvg/fwd2email:latest -gateway
+```
+
+#### Go install
 
 ```sh
 go install github.com/kurtisvg/discord-fwd2email@latest
 ```
 
-</details>
+#### Build from source
+
+```sh
+git clone https://github.com/kurtisvg/discord-fwd2email.git && cd discord-fwd2email
+go build -o fwd2email .
+```
 
 Configure and run:
 
