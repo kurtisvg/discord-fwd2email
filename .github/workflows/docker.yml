@@ -16,8 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
       - name: Build image
-        run: docker build -t fwd2email:test .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: fwd2email:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Verify container runs
         run: |
           output=$(docker run --rm fwd2email:test 2>&1 || true)
