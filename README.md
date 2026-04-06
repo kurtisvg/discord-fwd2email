@@ -17,7 +17,7 @@ Right-click any message, select **Apps** > **Forward to inbox**, and a formatted
 
 ```sh
 git clone https://github.com/kurtisvg/discord-forward-to-email.git && cd discord-forward-to-email
-go build -o ./fwd2email .
+go build -o fwd2email .
 ```
 
 </details>
