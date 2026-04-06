@@ -5,7 +5,6 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /bin/fwd2email .
 
-FROM alpine:3.21
-RUN apk add --no-cache ca-certificates
+FROM gcr.io/distroless/static-debian12
 COPY --from=build /bin/fwd2email /bin/fwd2email
 ENTRYPOINT ["/bin/fwd2email"]
