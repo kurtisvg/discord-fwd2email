@@ -19,6 +19,7 @@ type ForwardData struct {
 	ServerName      string
 	ChannelName     string
 	ThreadName      string
+	IsDM            bool
 	MessageLink     string
 	ContextMessages []MessageData
 	TargetMessage   MessageData
@@ -36,10 +37,11 @@ const emailTemplateHTML = `<!DOCTYPE html>
 
         {{/* Header */}}
         <tr><td style="padding:24px 24px 16px 24px;">
-          <p style="margin:0;font-size:16px;color:#333;">
-            {{if .ServerName}}Forwarded chat in {{.ServerName}} · #{{.ChannelName}}{{if .ThreadName}} › {{.ThreadName}}{{end}}
+          <p style="margin:0;font-size:16px;font-weight:600;color:#111;">
+            {{if .IsDM}}Forwarded DM with {{.TargetMessage.AuthorName}}
+            {{else if .ServerName}}Forwarded chat in {{.ServerName}}{{if .ChannelName}} · #{{.ChannelName}}{{end}}{{if .ThreadName}} › {{.ThreadName}}{{end}}
             {{else if .ChannelName}}Forwarded chat in #{{.ChannelName}}{{if .ThreadName}} › {{.ThreadName}}{{end}}
-            {{else}}Forwarded DM with {{.TargetMessage.AuthorName}}
+            {{else}}Forwarded chat
             {{end}}
           </p>
           <hr style="border:none;border-top:1px solid #e0e0e0;margin-top:16px;">
@@ -48,14 +50,14 @@ const emailTemplateHTML = `<!DOCTYPE html>
         {{/* Context messages */}}
         {{range .ContextMessages}}
         <tr><td style="padding:0 24px;">
-          <table width="100%" cellpadding="0" cellspacing="0">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid #f0f0f0;">
             <tr>
-              <td width="40" valign="top" style="padding:12px 0 12px 12px;">
-                <img src="{{.AvatarURL}}" width="32" height="32" style="border-radius:50%;display:block;" alt="{{.AuthorName}}">
+              <td width="48" valign="top" style="padding:12px 0 12px 12px;">
+                <img src="{{.AvatarURL}}" width="36" height="36" style="border-radius:50%;display:block;" alt="{{.AuthorName}}">
               </td>
-              <td style="padding:12px 8px 12px 8px;">
-                <p style="margin:0 0 2px 0;font-weight:bold;font-size:14px;color:#111;">{{.AuthorName}}</p>
-                {{if .Content}}<p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.Content}}</p>{{end}}
+              <td style="padding:12px 12px 12px 12px;">
+                <p style="margin:0 0 4px 0;font-weight:bold;font-size:14px;color:#111;">{{.AuthorName}}</p>
+                {{if .Content}}<p style="margin:0;font-size:14px;color:#444;line-height:1.5;">{{.Content}}</p>{{end}}
                 {{range .Attachments}}
                   {{if .IsImage}}<img src="{{.URL}}" style="max-width:100%;border-radius:4px;margin-top:8px;display:block;" alt="{{.Filename}}">
                   {{else}}<p style="margin:4px 0 0 0;font-size:13px;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">📎 {{.Filename}}</a></p>
@@ -69,14 +71,15 @@ const emailTemplateHTML = `<!DOCTYPE html>
 
         {{/* Target message (highlighted) */}}
         <tr><td style="padding:0 24px;">
-          <table width="100%" cellpadding="0" cellspacing="0">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f4ff;">
             <tr>
-              <td width="40" valign="top" style="padding:12px 0 12px 12px;border-left:3px solid #5865F2;">
-                <img src="{{.TargetMessage.AvatarURL}}" width="32" height="32" style="border-radius:50%;display:block;" alt="{{.TargetMessage.AuthorName}}">
+              <td width="4" style="background-color:#5865F2;"></td>
+              <td width="48" valign="top" style="padding:12px 0 12px 12px;">
+                <img src="{{.TargetMessage.AvatarURL}}" width="36" height="36" style="border-radius:50%;display:block;" alt="{{.TargetMessage.AuthorName}}">
               </td>
-              <td style="padding:12px 8px 12px 8px;border-left:3px solid #5865F2;">
-                <p style="margin:0 0 2px 0;font-weight:bold;font-size:14px;color:#111;">{{.TargetMessage.AuthorName}}</p>
-                {{if .TargetMessage.Content}}<p style="margin:0;font-size:14px;color:#333;line-height:1.5;">{{.TargetMessage.Content}}</p>{{end}}
+              <td style="padding:12px 12px 12px 12px;">
+                <p style="margin:0 0 4px 0;font-weight:bold;font-size:14px;color:#111;">{{.TargetMessage.AuthorName}}</p>
+                {{if .TargetMessage.Content}}<p style="margin:0;font-size:14px;color:#444;line-height:1.5;">{{.TargetMessage.Content}}</p>{{end}}
                 {{range .TargetMessage.Attachments}}
                   {{if .IsImage}}<img src="{{.URL}}" style="max-width:100%;border-radius:4px;margin-top:8px;display:block;" alt="{{.Filename}}">
                   {{else}}<p style="margin:4px 0 0 0;font-size:13px;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">📎 {{.Filename}}</a></p>

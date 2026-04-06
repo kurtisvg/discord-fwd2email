@@ -175,12 +175,13 @@ func (h *Handler) handleForward(interaction *discordgo.Interaction) {
 		ServerName:      serverName,
 		ChannelName:     channelName,
 		ThreadName:      threadName,
+		IsDM:            interaction.GuildID == "",
 		MessageLink:     messageLink,
 		ContextMessages: contextMessages,
 		TargetMessage:   target,
 	}
 
-	subject := buildSubject(channelName, threadName, serverName, target.AuthorName)
+	subject := buildSubject(channelName, threadName, interaction.GuildID == "", target.AuthorName)
 
 	if err := h.mailer.Send(h.gmailUser, subject, emailData); err != nil {
 		slog.Error("email send failed", "error", err)
@@ -268,15 +269,15 @@ func isThread(ch *discordgo.Channel) bool {
 		ch.Type == discordgo.ChannelTypeGuildPrivateThread
 }
 
-func buildSubject(channelName, threadName, serverName, authorName string) string {
+func buildSubject(channelName, threadName string, isDM bool, authorName string) string {
+	if isDM && authorName != "" {
+		return fmt.Sprintf("[Discord] Forwarded DM with %s", authorName)
+	}
 	if channelName != "" && threadName != "" {
 		return fmt.Sprintf("[Discord] Forwarded chat in #%s › %s", channelName, threadName)
 	}
 	if channelName != "" {
 		return fmt.Sprintf("[Discord] Forwarded chat in #%s", channelName)
-	}
-	if serverName == "" && authorName != "" {
-		return fmt.Sprintf("[Discord] Forwarded DM with %s", authorName)
 	}
 	return "[Discord] Forwarded chat"
 }

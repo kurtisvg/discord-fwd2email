@@ -185,7 +185,7 @@ func TestBuildSubject(t *testing.T) {
 		name        string
 		channelName string
 		threadName  string
-		serverName  string
+		isDM        bool
 		authorName  string
 		want        string
 	}{
@@ -202,6 +202,7 @@ func TestBuildSubject(t *testing.T) {
 		},
 		{
 			name:       "DM",
+			isDM:       true,
 			authorName: "Alice",
 			want:       "[Discord] Forwarded DM with Alice",
 		},
@@ -210,27 +211,19 @@ func TestBuildSubject(t *testing.T) {
 			want: "[Discord] Forwarded chat",
 		},
 		{
-			name:        "channel with server (no thread)",
-			channelName: "general",
-			serverName:  "My Server",
-			want:        "[Discord] Forwarded chat in #general",
-		},
-		{
-			name:        "thread with server",
-			channelName: "support",
-			threadName:  "billing issue",
-			serverName:  "My Server",
-			want:        "[Discord] Forwarded chat in #support › billing issue",
+			name:        "server channel no access",
+			channelName: "",
+			isDM:        false,
+			want:        "[Discord] Forwarded chat",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := buildSubject(tt.channelName, tt.threadName, tt.serverName, tt.authorName)
+			got := buildSubject(tt.channelName, tt.threadName, tt.isDM, tt.authorName)
 			if got != tt.want {
-				t.Fatalf("buildSubject(%q, %q, %q, %q) = %q, want %q",
-					tt.channelName, tt.threadName, tt.serverName, tt.authorName, got, tt.want)
+				t.Fatalf("got %q, want %q", got, tt.want)
 			}
 		})
 	}

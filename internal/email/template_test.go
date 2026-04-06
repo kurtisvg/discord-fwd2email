@@ -39,6 +39,7 @@ func TestEmailTemplate(t *testing.T) {
 		{
 			name: "DM with no server",
 			data: ForwardData{
+				IsDM:        true,
 				MessageLink: "https://discord.com/channels/@me/456/789",
 				TargetMessage: MessageData{
 					AuthorName: "Bob",
@@ -211,18 +212,17 @@ func TestEmailTemplate_TargetHighlight(t *testing.T) {
 	}
 	html := buf.String()
 
-	// The context message's containing <td> should not have the blurple border.
-	// Find the <td> that wraps "Context msg" by looking at the preceding markup.
+	// The context message table should not have the tinted background.
 	contextIdx := strings.Index(html, "Context msg")
-	contextTd := html[strings.LastIndex(html[:contextIdx], "<td"):contextIdx]
+	contextTable := html[strings.LastIndex(html[:contextIdx], "<table"):contextIdx]
 
 	targetIdx := strings.Index(html, "Target msg")
-	targetTd := html[strings.LastIndex(html[:targetIdx], "<td"):targetIdx]
+	targetTable := html[strings.LastIndex(html[:targetIdx], "<table"):targetIdx]
 
-	if strings.Contains(contextTd, "border-left") {
-		t.Error("context message td should not have border-left")
+	if strings.Contains(contextTable, "background-color:#f0f4ff") {
+		t.Error("context message should not have tinted background")
 	}
-	if !strings.Contains(targetTd, "border-left:3px solid #5865F2") {
-		t.Error("target message td should have blurple border-left")
+	if !strings.Contains(targetTable, "background-color:#f0f4ff") {
+		t.Error("target message should have tinted background")
 	}
 }
