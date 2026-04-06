@@ -6,22 +6,30 @@ Right-click any message, select **Apps** > **Forward to inbox**, and a formatted
 
 ![Example email](EXAMPLE.png)
 
-## Quickstart
+## Getting started
+
+Set your environment variables:
 
 ```sh
-# Clone and run in gateway mode (no public URL needed)
-git clone https://github.com/kurtisvg/discord-forward-to-email.git
-cd discord-forward-to-email
-
 export DISCORD_TOKEN='your-bot-token'
 export DISCORD_APP_ID='your-app-id'
 export GMAIL_USER='you@gmail.com'
 export GMAIL_APP_PASSWORD='your-app-password'
+```
 
+Then run it:
+
+```sh
+# Run directly (requires Go 1.24+)
+go run github.com/discord-forward-to-email@latest -gateway
+
+# Or clone and build from source
+git clone https://github.com/kurtisvg/discord-forward-to-email.git
+cd discord-forward-to-email
 go run . -gateway
 ```
 
-The bot registers its command on startup. Right-click any message > **Apps** > **Forward to inbox**
+The bot registers its command on startup. Right-click any message > **Apps** > **Forward to inbox**.
 
 ## Discord setup
 
