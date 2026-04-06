@@ -61,20 +61,20 @@ docker run --rm \
 </details>
 
 <details>
-<summary>Build from source</summary>
+<summary>Go install</summary>
 
 ```sh
-git clone https://github.com/kurtisvg/discord-fwd2email.git && cd discord-fwd2email
-go build -o fwd2email .
+go install github.com/kurtisvg/discord-fwd2email@latest
 ```
 
 </details>
 
 <details>
-<summary>Go install</summary>
+<summary>Build from source</summary>
 
 ```sh
-go install github.com/kurtisvg/discord-fwd2email@latest
+git clone https://github.com/kurtisvg/discord-fwd2email.git && cd discord-fwd2email
+go build -o fwd2email .
 ```
 
 </details>
