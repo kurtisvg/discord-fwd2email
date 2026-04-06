@@ -8,7 +8,21 @@ Right-click any message, select **Apps** > **Forward to inbox**, and a formatted
 
 ## Getting started
 
-Set your environment variables:
+### Install
+
+```sh
+go install github.com/discord-forward-to-email@latest
+```
+
+Or build from source:
+
+```sh
+git clone https://github.com/kurtisvg/discord-forward-to-email.git
+cd discord-forward-to-email
+go build -o fwd2email .
+```
+
+### Configure
 
 ```sh
 export DISCORD_TOKEN='your-bot-token'
@@ -17,16 +31,10 @@ export GMAIL_USER='you@gmail.com'
 export GMAIL_APP_PASSWORD='your-app-password'
 ```
 
-Then run it:
+### Run
 
 ```sh
-# Run directly (requires Go 1.24+)
-go run github.com/discord-forward-to-email@latest -gateway
-
-# Or clone and build from source
-git clone https://github.com/kurtisvg/discord-forward-to-email.git
-cd discord-forward-to-email
-go run . -gateway
+fwd2email -gateway
 ```
 
 The bot registers its command on startup. Right-click any message > **Apps** > **Forward to inbox**.
@@ -66,13 +74,13 @@ Everything is configurable via flags or environment variables. Flags take preced
 **Gateway mode** — connects to Discord via websocket. No public URL, no signature verification. Great for local dev.
 
 ```sh
-go run . -gateway
+fwd2email -gateway
 ```
 
 **Webhook mode** — runs an HTTP server that receives interaction POSTs from Discord. Requires a public HTTPS URL and the public key for signature verification. This is what you'd use on Cloud Run or similar.
 
 ```sh
-go run .
+fwd2email
 # Then set your Interactions Endpoint URL in the Discord Developer Portal
 # to https://your-domain/interactions
 ```
