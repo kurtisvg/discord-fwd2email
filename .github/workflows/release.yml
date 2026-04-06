@@ -48,8 +48,8 @@ jobs:
         with:
           images: ghcr.io/kurtisvg/fwd2email
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}},value=${{ inputs.tag || github.ref_name }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag || github.ref_name }}
             type=raw,value=latest
       - uses: docker/build-push-action@v6
         with:
