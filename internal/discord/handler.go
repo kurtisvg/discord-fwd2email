@@ -225,12 +225,37 @@ func messageData(msg *discordgo.Message) email.MessageData {
 		})
 	}
 
+	var embeds []email.Embed
+	for _, e := range msg.Embeds {
+		embed := email.Embed{
+			Title:       e.Title,
+			URL:         e.URL,
+			Description: markdown.ToHTML(e.Description),
+			Color:       embedColor(e.Color),
+		}
+		for _, f := range e.Fields {
+			embed.Fields = append(embed.Fields, email.EmbedField{
+				Name:  f.Name,
+				Value: f.Value,
+			})
+		}
+		embeds = append(embeds, embed)
+	}
+
 	return email.MessageData{
 		AuthorName:  authorName,
 		AvatarURL:   avatarURL(msg.Author),
 		Content:     markdown.ToHTML(msg.Content),
+		Embeds:      embeds,
 		Attachments: attachments,
 	}
+}
+
+func embedColor(color int) string {
+	if color == 0 {
+		return "#e0e0e0"
+	}
+	return fmt.Sprintf("#%06x", color)
 }
 
 func avatarURL(u *discordgo.User) string {

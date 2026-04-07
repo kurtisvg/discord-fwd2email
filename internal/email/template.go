@@ -8,10 +8,24 @@ type Attachment struct {
 	IsImage  bool
 }
 
+type EmbedField struct {
+	Name  string
+	Value string
+}
+
+type Embed struct {
+	Title       string
+	URL         string
+	Description template.HTML
+	Color       string
+	Fields      []EmbedField
+}
+
 type MessageData struct {
 	AuthorName  string
 	AvatarURL   string
 	Content     template.HTML
+	Embeds      []Embed
 	Attachments []Attachment
 }
 
@@ -58,6 +72,16 @@ const emailTemplateHTML = `<!DOCTYPE html>
               <td style="padding:12px 12px 12px 12px;">
                 <p style="margin:0 0 4px 0;font-weight:bold;font-size:14px;color:#111;">{{.AuthorName}}</p>
                 {{if .Content}}<p style="margin:0;font-size:14px;color:#444;line-height:1.5;">{{.Content}}</p>{{end}}
+                {{range .Embeds}}
+                <table cellpadding="0" cellspacing="0" style="margin-top:8px;border-left:3px solid {{.Color}};background-color:#fafafa;border-radius:0 4px 4px 0;width:100%;">
+                  <tr><td style="padding:8px 12px;">
+                    {{if .Title}}{{if .URL}}<p style="margin:0 0 4px 0;font-size:14px;font-weight:600;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">{{.Title}}</a></p>
+                    {{else}}<p style="margin:0 0 4px 0;font-size:14px;font-weight:600;color:#111;">{{.Title}}</p>{{end}}{{end}}
+                    {{if .Description}}<p style="margin:0;font-size:13px;color:#444;line-height:1.4;">{{.Description}}</p>{{end}}
+                    {{range .Fields}}<p style="margin:4px 0 0 0;font-size:13px;"><strong>{{.Name}}</strong> {{.Value}}</p>{{end}}
+                  </td></tr>
+                </table>
+                {{end}}
                 {{range .Attachments}}
                   {{if .IsImage}}<img src="{{.URL}}" style="max-width:100%;border-radius:4px;margin-top:8px;display:block;" alt="{{.Filename}}">
                   {{else}}<p style="margin:4px 0 0 0;font-size:13px;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">📎 {{.Filename}}</a></p>
@@ -80,6 +104,16 @@ const emailTemplateHTML = `<!DOCTYPE html>
               <td style="padding:12px 12px 12px 12px;">
                 <p style="margin:0 0 4px 0;font-weight:bold;font-size:14px;color:#111;">{{.TargetMessage.AuthorName}}</p>
                 {{if .TargetMessage.Content}}<p style="margin:0;font-size:14px;color:#444;line-height:1.5;">{{.TargetMessage.Content}}</p>{{end}}
+                {{range .TargetMessage.Embeds}}
+                <table cellpadding="0" cellspacing="0" style="margin-top:8px;border-left:3px solid {{.Color}};background-color:#fafafa;border-radius:0 4px 4px 0;width:100%;">
+                  <tr><td style="padding:8px 12px;">
+                    {{if .Title}}{{if .URL}}<p style="margin:0 0 4px 0;font-size:14px;font-weight:600;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">{{.Title}}</a></p>
+                    {{else}}<p style="margin:0 0 4px 0;font-size:14px;font-weight:600;color:#111;">{{.Title}}</p>{{end}}{{end}}
+                    {{if .Description}}<p style="margin:0;font-size:13px;color:#444;line-height:1.4;">{{.Description}}</p>{{end}}
+                    {{range .Fields}}<p style="margin:4px 0 0 0;font-size:13px;"><strong>{{.Name}}</strong> {{.Value}}</p>{{end}}
+                  </td></tr>
+                </table>
+                {{end}}
                 {{range .TargetMessage.Attachments}}
                   {{if .IsImage}}<img src="{{.URL}}" style="max-width:100%;border-radius:4px;margin-top:8px;display:block;" alt="{{.Filename}}">
                   {{else}}<p style="margin:4px 0 0 0;font-size:13px;"><a href="{{.URL}}" style="color:#5865F2;text-decoration:none;">📎 {{.Filename}}</a></p>

@@ -164,6 +164,102 @@ func TestEmailTemplate(t *testing.T) {
 			want:       []string{"Charlie", `<img src="https://cdn.example.com/image.jpg"`},
 			wantAbsent: []string{"<p style=\"margin:0;font-size:14px"},
 		},
+		{
+			name: "embed with title and description",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Bot",
+					Embeds: []Embed{
+						{
+							Title:       "Alert",
+							Description: "Something happened",
+							Color:       "#00ff00",
+						},
+					},
+				},
+			},
+			want: []string{"Alert", "Something happened", "#00ff00"},
+		},
+		{
+			name: "embed with linked title",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Bot",
+					Embeds: []Embed{
+						{
+							Title: "Click me",
+							URL:   "https://example.com",
+							Color: "#e0e0e0",
+						},
+					},
+				},
+			},
+			want: []string{`href="https://example.com"`, "Click me"},
+		},
+		{
+			name: "embed with fields",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Bot",
+					Embeds: []Embed{
+						{
+							Title: "Status",
+							Color: "#ff0000",
+							Fields: []EmbedField{
+								{Name: "CPU", Value: "85%"},
+								{Name: "Memory", Value: "2.1GB"},
+							},
+						},
+					},
+				},
+			},
+			want: []string{"CPU", "85%", "Memory", "2.1GB"},
+		},
+		{
+			name: "message with content and embed",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Alice",
+					Content:    "Check this alert",
+					Embeds: []Embed{
+						{
+							Title:       "Warning",
+							Description: "Disk space low",
+							Color:       "#ff9900",
+						},
+					},
+				},
+			},
+			want: []string{"Check this alert", "Warning", "Disk space low", "#ff9900"},
+		},
+		{
+			name: "message with multiple embeds",
+			data: ForwardData{
+				ServerName:  "Test",
+				ChannelName: "general",
+				MessageLink: "https://discord.com/channels/1/2/3",
+				TargetMessage: MessageData{
+					AuthorName: "Bot",
+					Embeds: []Embed{
+						{Title: "First", Color: "#ff0000"},
+						{Title: "Second", Color: "#00ff00"},
+					},
+				},
+			},
+			want: []string{"First", "#ff0000", "Second", "#00ff00"},
+		},
 	}
 
 	for _, tt := range tests {
