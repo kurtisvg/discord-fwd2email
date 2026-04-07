@@ -19,11 +19,11 @@ type Handler struct {
 	publicKey ed25519.PublicKey
 	session   *discordgo.Session
 	appID     string
-	gmailUser string
-	mailer    *email.Mailer
+	toEmail   string
+	sender    email.Sender
 }
 
-func NewHandler(publicKeyHex, token, appID, gmailUser string, mailer *email.Mailer) (*Handler, error) {
+func NewHandler(publicKeyHex, token, appID, toEmail string, sender email.Sender) (*Handler, error) {
 	key, err := hex.DecodeString(publicKeyHex)
 	if err != nil {
 		return nil, fmt.Errorf("invalid discord public key: %w", err)
@@ -38,8 +38,8 @@ func NewHandler(publicKeyHex, token, appID, gmailUser string, mailer *email.Mail
 		publicKey: ed25519.PublicKey(key),
 		session:   session,
 		appID:     appID,
-		gmailUser: gmailUser,
-		mailer:    mailer,
+		toEmail:   toEmail,
+		sender:    sender,
 	}, nil
 }
 
@@ -183,16 +183,16 @@ func (h *Handler) handleForward(interaction *discordgo.Interaction) {
 
 	subject := buildSubject(channelName, threadName, interaction.GuildID == "", target.AuthorName)
 
-	if err := h.mailer.Send(h.gmailUser, subject, emailData); err != nil {
+	if err := h.sender.Send(h.toEmail, subject, emailData); err != nil {
 		slog.Error("email send failed", "error", err)
 		h.editReply(interaction, "❌ Failed to forward — check bot logs.")
 		return
 	}
 
 	if contextErr != nil {
-		h.editReply(interaction, fmt.Sprintf("✉️ Forwarded to %s (target message only — no channel access for context)", h.gmailUser))
+		h.editReply(interaction, fmt.Sprintf("✉️ Forwarded to %s (target message only — no channel access for context)", h.toEmail))
 	} else {
-		h.editReply(interaction, fmt.Sprintf("✉️ Forwarded to %s (with %d messages of context)", h.gmailUser, len(contextMessages)))
+		h.editReply(interaction, fmt.Sprintf("✉️ Forwarded to %s (with %d messages of context)", h.toEmail, len(contextMessages)))
 	}
 }
 

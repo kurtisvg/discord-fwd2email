@@ -31,8 +31,15 @@ func Execute() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	mailer := email.NewMailer(opts.gmailUser, opts.gmailAppPassword)
-	handler, err := discord.NewHandler(opts.discordPublicKey, opts.discordToken, opts.discordAppID, opts.gmailUser, mailer)
+	var sender email.Sender
+	switch opts.emailProvider {
+	case "smtp":
+		sender = email.NewMailer(opts.smtpUser, opts.smtpPassword)
+	case "resend":
+		sender = email.NewResendSender(opts.resendAPIKey, opts.fromEmail)
+	}
+
+	handler, err := discord.NewHandler(opts.discordPublicKey, opts.discordToken, opts.discordAppID, opts.toEmail, sender)
 	if err != nil {
 		slog.Error("failed to create handler", "error", err)
 		os.Exit(1)
