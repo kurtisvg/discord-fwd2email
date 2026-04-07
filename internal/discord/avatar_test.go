@@ -194,7 +194,28 @@ func TestMessageData_Embeds(t *testing.T) {
 	if embed.Color != "#ff0000" {
 		t.Errorf("expected color %q, got %q", "#ff0000", embed.Color)
 	}
+	if !strings.Contains(string(embed.Description), "Something happened") {
+		t.Error("expected description to be set")
+	}
 	if len(embed.Fields) != 1 || embed.Fields[0].Name != "Status" {
 		t.Error("expected field with name Status")
+	}
+}
+
+func TestMessageData_EmbedMarkdown(t *testing.T) {
+	t.Parallel()
+
+	msg := &discordgo.Message{
+		Author: &discordgo.User{Username: "bot", Avatar: "abc"},
+		Embeds: []*discordgo.MessageEmbed{
+			{
+				Description: "**bold** description",
+			},
+		},
+	}
+
+	md := messageData(msg)
+	if !strings.Contains(string(md.Embeds[0].Description), "<strong>bold</strong>") {
+		t.Errorf("expected markdown conversion in embed description, got %q", md.Embeds[0].Description)
 	}
 }
