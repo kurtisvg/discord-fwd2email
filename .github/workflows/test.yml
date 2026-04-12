@@ -42,16 +42,6 @@ jobs:
       - name: Test
         run: go test ./... -timeout 60s
 
-  validate-renovate:
-    if: "github.event.action != 'labeled' || github.event.label.name == 'tests: run'"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Validate Renovate config
-        run: npx --yes renovate -- renovate-config-validator .github/renovate.json
-
   lint:
     if: "github.event.action != 'labeled' || github.event.label.name == 'tests: run'"
     runs-on: ubuntu-latest
