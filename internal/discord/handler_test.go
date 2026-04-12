@@ -181,6 +181,10 @@ func TestIsThread(t *testing.T) {
 func TestBuildSubject(t *testing.T) {
 	t.Parallel()
 
+	// Snowflake 1360000000000000000 → Apr 10, 2025 9:14 PM UTC
+	const msgID = "1360000000000000000"
+	const ts = "Apr 10, 9:14 PM"
+
 	tests := []struct {
 		name        string
 		channelName string
@@ -192,39 +196,59 @@ func TestBuildSubject(t *testing.T) {
 		{
 			name:        "channel only",
 			channelName: "general",
-			want:        "[Discord] Forwarded chat in #general",
+			authorName:  "Bob",
+			want:        "[Discord] Bob in #general — " + ts,
 		},
 		{
 			name:        "thread in channel",
 			channelName: "support",
 			threadName:  "billing issue",
-			want:        "[Discord] Forwarded chat in #support › billing issue",
+			authorName:  "Bob",
+			want:        "[Discord] Bob in #support › billing issue — " + ts,
 		},
 		{
 			name:       "DM",
 			isDM:       true,
 			authorName: "Alice",
-			want:       "[Discord] Forwarded DM with Alice",
+			want:       "[Discord] Alice in DM — " + ts,
 		},
 		{
-			name: "fallback",
-			want: "[Discord] Forwarded chat",
+			name:       "no channel access",
+			authorName: "Charlie",
+			want:       "[Discord] Charlie — " + ts,
 		},
 		{
-			name:        "server channel no access",
-			channelName: "",
-			isDM:        false,
-			want:        "[Discord] Forwarded chat",
+			name: "no author or channel",
+			want: "[Discord] Unknown — " + ts,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := buildSubject(tt.channelName, tt.threadName, tt.isDM, tt.authorName)
+			got := buildSubject(tt.channelName, tt.threadName, tt.isDM, tt.authorName, msgID)
 			if got != tt.want {
 				t.Fatalf("got %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSnowflakeTime(t *testing.T) {
+	t.Parallel()
+
+	got := snowflakeTime("1360000000000000000")
+	want := "Apr 10, 9:14 PM"
+	if got.Format("Jan 2, 3:04 PM") != want {
+		t.Fatalf("got %q, want %q", got.Format("Jan 2, 3:04 PM"), want)
+	}
+}
+
+func TestSnowflakeTime_invalid(t *testing.T) {
+	t.Parallel()
+
+	got := snowflakeTime("not-a-number")
+	if !got.IsZero() {
+		t.Fatalf("expected zero time for invalid ID, got %v", got)
 	}
 }

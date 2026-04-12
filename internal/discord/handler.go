@@ -8,7 +8,9 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/kurtisvg/discord-fwd2email/internal/email"
@@ -192,7 +194,7 @@ func (h *Handler) handleForward(interaction *discordgo.Interaction) {
 		TargetMessage:   target,
 	}
 
-	subject := buildSubject(channelName, threadName, interaction.GuildID == "", target.AuthorName)
+	subject := buildSubject(channelName, threadName, interaction.GuildID == "", target.AuthorName, targetMsg.ID)
 
 	if err := h.sender.Send(h.toEmail, subject, emailData); err != nil {
 		slog.Error("email send failed", "error", err)
@@ -305,17 +307,37 @@ func isThread(ch *discordgo.Channel) bool {
 		ch.Type == discordgo.ChannelTypeGuildPrivateThread
 }
 
-func buildSubject(channelName, threadName string, isDM bool, authorName string) string {
-	if isDM && authorName != "" {
-		return fmt.Sprintf("[Discord] Forwarded DM with %s", authorName)
+func buildSubject(channelName, threadName string, isDM bool, authorName, messageID string) string {
+	who := authorName
+	if who == "" {
+		who = "Unknown"
 	}
-	if channelName != "" && threadName != "" {
-		return fmt.Sprintf("[Discord] Forwarded chat in #%s › %s", channelName, threadName)
+
+	var where string
+	switch {
+	case isDM:
+		where = " in DM"
+	case channelName != "" && threadName != "":
+		where = fmt.Sprintf(" in #%s › %s", channelName, threadName)
+	case channelName != "":
+		where = fmt.Sprintf(" in #%s", channelName)
 	}
-	if channelName != "" {
-		return fmt.Sprintf("[Discord] Forwarded chat in #%s", channelName)
+
+	ts := snowflakeTime(messageID)
+
+	return fmt.Sprintf("[Discord] %s%s — %s", who, where, ts.Format("Jan 2, 3:04 PM"))
+}
+
+// discordEpochMs is the Discord epoch (2015-01-01T00:00:00Z) in milliseconds.
+const discordEpochMs = 1420070400000
+
+func snowflakeTime(id string) time.Time {
+	n, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return time.Time{}
 	}
-	return "[Discord] Forwarded chat"
+	ms := int64(n>>22) + discordEpochMs
+	return time.UnixMilli(ms).UTC()
 }
 
 func respondJSON(w http.ResponseWriter, v any) {
