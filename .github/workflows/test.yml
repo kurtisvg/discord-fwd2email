@@ -50,7 +50,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Validate Renovate config
-        run: npx renovate-config-validator .github/renovate.json
+        run: npx --yes renovate -- renovate-config-validator .github/renovate.json
 
   lint:
     if: "github.event.action != 'labeled' || github.event.label.name == 'tests: run'"
